@@ -1,0 +1,32 @@
+---
+version: "2"
+services:
+  nginx:
+    image: nginx
+    ports:
+    - 8080:8080
+    links:
+    - proxy:proxy
+    - echoheaders:echoheaders
+    environment:
+    - HTTP_PROXY=proxy:9090
+    - http_proxy=proxy:9090
+    volumes:
+    - ./nginx:/etc/nginx
+  proxy:
+    image: opentracing-proxy
+    build: .
+    ports:
+    - 8888:8080
+    links:
+    - echoheaders:echoheaders
+    - zipkin:zipkin
+  echoheaders:
+    image: brndnmtthws/nginx-echo-headers
+    ports:
+    - 9090:8080
+  zipkin:
+    image: openzipkin/zipkin:1.12.0
+    ports:
+    - 9410:9410
+    - 9411:9411
